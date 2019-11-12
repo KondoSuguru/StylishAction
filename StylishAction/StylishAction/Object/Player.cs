@@ -13,18 +13,23 @@ namespace StylishAction.Object
     class Player : Object
     {
         private readonly float mSpeed;
+        private readonly float mDashSpeed;
+        private int mDashTimer;
+        private int mDashCount;
+        private bool mIsDash;
         private readonly float mJumpPower;
+        private int mJumpCount;
         private readonly float mGravity;
         private Vector2 mVelocity;
-        private int mJumpCount;
-        private int mHitPoint;
         private readonly int mMaxHitPoint;
+        private int mHitPoint;
+
 
         private enum Direction
         {
             Up,
-            Down,
             Left,
+            Down,
             Right,
         }
         private Direction mCurrentDir; //今のDirection
@@ -41,12 +46,10 @@ namespace StylishAction.Object
         public Player(string name, int size) : base(name, size)
         {
             mSpeed = 5;
+            mDashSpeed = 50;
             mJumpPower = 20;
             mGravity = 1;
             mMaxHitPoint = 3;
-            mCurrentDir = Direction.Right;
-            mPreviousDir = mCurrentDir;
-            mAttackState = AttackState.None;
         }
 
         public override void Initialize()
@@ -56,7 +59,13 @@ namespace StylishAction.Object
             mVelocity = Vector2.Zero;
             mJumpCount = 0;
             mHitPoint = mMaxHitPoint;
+            mIsDash = false;
+            mDashTimer = 5;
+            mDashCount = 2;
             mWeakAttackTimer = 5;
+            mCurrentDir = Direction.Right;
+            mPreviousDir = mCurrentDir;
+            mAttackState = AttackState.None;
         }
 
         public override void Update(GameTime gameTime)
@@ -64,6 +73,7 @@ namespace StylishAction.Object
             base.Update(gameTime);
 
             Move();
+            Dash();
             Fall();
             Jump();
             WeakAttack();
@@ -81,11 +91,15 @@ namespace StylishAction.Object
 
         private void Move()
         {
+            if (mIsDash)
+                return;
             mVelocity.X = Input.Velocity().X * mSpeed;
         }
 
         private void Jump()
         {
+            if (mIsDash)
+                return;
             if (Input.GetKeyTrigger(Keys.Space) && mJumpCount > 0)
             {
                 mVelocity.Y = -mJumpPower;
@@ -94,8 +108,31 @@ namespace StylishAction.Object
             }
         }
 
+        private void Dash()
+        {
+            if (!mIsDash && Input.GetKeyTrigger(Keys.X) && mDashCount > 0)
+            {
+                mIsDash = true;
+                mDashCount--;
+            }
+            if (mIsDash)
+            {
+                mDashTimer--;
+                mVelocity.Y = 0;
+                mVelocity.X = ((int)mPreviousDir - 2) * mDashSpeed;
+                if(mDashTimer < 0)
+                {
+                    mIsDash = false;
+                    mDashTimer = 5;
+                }
+            }
+        }
+
         private void Fall()
         {
+            if (mIsDash)
+                return;
+
             if (mPosition.Y < Screen.HEIGHT - 64)
             {
                 mVelocity.Y += mGravity;
@@ -106,11 +143,15 @@ namespace StylishAction.Object
                 mPosition.Y = Screen.HEIGHT - 64;
                 mVelocity.Y = 0;
                 mJumpCount = 2;
+                mDashCount = 2;
             }
         }
 
         private void WeakAttack()
         {
+            if (mIsDash)
+                return;
+
             if (Input.GetKeyTrigger(Keys.Z) && mAttackState == AttackState.None)
             {
                 Vector2 attackOrigin = Vector2.Zero;
