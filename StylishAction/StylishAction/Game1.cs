@@ -19,6 +19,9 @@ namespace StylishAction
         {
             mGraphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+
+            mGraphics.PreferredBackBufferWidth = Screen.WIDTH;
+            mGraphics.PreferredBackBufferHeight = Screen.HEIGHT;
         }
 
         protected override void Initialize()

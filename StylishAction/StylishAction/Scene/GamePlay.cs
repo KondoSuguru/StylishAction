@@ -22,6 +22,7 @@ namespace StylishAction.Scene
         public void Initialize()
         {
             mIsEnd = false;
+            mNextScene = Scene.Title;
 
             ObjectManager.Instance().AddObject(new Player("Player1"));
             ObjectManager.Instance().Initialize();
@@ -34,7 +35,7 @@ namespace StylishAction.Scene
 
         public Scene Next()
         {
-            return Scene.Title;
+            return mNextScene;
         }
 
         public void Shutdown()

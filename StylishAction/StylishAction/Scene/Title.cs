@@ -19,6 +19,7 @@ namespace StylishAction.Scene
         public void Initialize()
         {
             mIsEnd = false;
+            mNextScene = Scene.GamePlay;
         }
 
         public bool IsEnd()
@@ -28,7 +29,7 @@ namespace StylishAction.Scene
 
         public Scene Next()
         {
-            return Scene.GamePlay;
+            return mNextScene;
         }
 
         public void Shutdown()

@@ -8,6 +8,7 @@ namespace StylishAction.Scene
 {
     class SceneBase
     {
+        protected Scene mNextScene;
         protected bool mIsEnd;
     }
 }

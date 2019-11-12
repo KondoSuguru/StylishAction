@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="Device\GameDevice.cs" />
     <Compile Include="Device\Renderer.cs" />
+    <Compile Include="Device\Screen.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="Object\Object.cs" />
     <Compile Include="Object\ObjectManager.cs" />
