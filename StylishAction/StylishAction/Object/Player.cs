@@ -12,39 +12,54 @@ namespace StylishAction.Object
 {
     class Player : Object
     {
-        private float mSpeed;
-        private float mVelocityY;
-        private float mJumpPower;
-        private float mGravity;
+        private readonly float mSpeed;
+        private readonly float mJumpPower;
+        private readonly float mGravity;
+        private Vector2 mVelocity;
         private int mJumpCount;
+        private int mHitPoint;
+        private int mMaxHitPoint;
 
-        public Player(string name) : base(name)
+        public Player(string name, int size) : base(name, size)
         {
             mSpeed = 5;
             mJumpPower = 20;
             mGravity = 1;
+            mMaxHitPoint = 1;
         }
 
         public override void Initialize()
         {
             base.Initialize();
             mPosition = Vector2.Zero;
-            mVelocityY = 0;
+            mVelocity = Vector2.Zero;
             mJumpCount = 0;
+            mHitPoint = mMaxHitPoint;
         }
 
         public override void Update(GameTime gameTime)
         {
+            Move();
             Fall();
             Jump();
-            Translate(new Vector2(Input.Velocity().X * mSpeed, mVelocityY));
+            Translate(mVelocity);
+
+            if(mHitPoint <= 0)
+            {
+                mIsDead = true;
+            }
+        }
+
+        private void Move()
+        {
+            mVelocity.X = Input.Velocity().X * mSpeed;
         }
 
         private void Jump()
         {
             if (Input.GetKeyTrigger(Keys.Space) && mJumpCount > 0)
             {
-                mVelocityY = -mJumpPower;
+                mVelocity.Y = -mJumpPower;
                 mJumpCount--;
             }
         }
@@ -53,14 +68,22 @@ namespace StylishAction.Object
         {
             if (mPosition.Y < Screen.HEIGHT - 32)
             {
-                mVelocityY += mGravity;
-                mVelocityY = ((mVelocityY >= 100) ? 100 : mVelocityY);
+                mVelocity.Y += mGravity;
+                mVelocity.Y = ((mVelocity.Y >= 100) ? 100 : mVelocity.Y);
             }
             else
             {
                 mPosition.Y = Screen.HEIGHT - 32;
-                mVelocityY = 0;
+                mVelocity.Y = 0;
                 mJumpCount = 2;
+            }
+        }
+
+        public override void Collision(Object other)
+        {
+            if(other is Enemy)
+            {
+                mHitPoint--;
             }
         }
     }

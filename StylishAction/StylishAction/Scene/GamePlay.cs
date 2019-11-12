@@ -16,7 +16,8 @@ namespace StylishAction.Scene
         public GamePlay()
         {
             var r = GameDevice.Instance().GetRenderer();
-            r.LoadContent("Player1");            
+            r.LoadContent("player");
+            r.LoadContent("enemy");
         }
 
         public void Initialize()
@@ -24,7 +25,8 @@ namespace StylishAction.Scene
             mIsEnd = false;
             mNextScene = Scene.Title;
 
-            ObjectManager.Instance().AddObject(new Player("Player1"));
+            new Player("player", 32);
+            new Enemy("enemy", 32);
             ObjectManager.Instance().Initialize();
         }
 

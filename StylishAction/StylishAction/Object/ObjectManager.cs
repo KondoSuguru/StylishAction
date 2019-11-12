@@ -48,6 +48,9 @@ namespace StylishAction.Object
             {
                 o.Update(gameTime);
             }
+
+            Collision();
+            RemoveDeadObject();
         }
 
         public void Draw()
@@ -66,6 +69,29 @@ namespace StylishAction.Object
         public List<Object> GetObjects()
         {
             return mObjects;
+        }
+
+        private void Collision()
+        {
+            //総当たり判定
+            for(int i = 0; i < mObjects.Count - 1; i++)
+            {
+                Object obj1 = mObjects[i];
+                for (int j = i + 1; j < mObjects.Count; j++)
+                {
+                    Object obj2 = mObjects[j];
+                    if(Vector2.Distance(obj1.GetPosition(),obj2.GetPosition()) <= (obj1.GetSize() + obj2.GetSize()) / 2)
+                    {
+                        obj1.Collision(obj2);
+                        obj2.Collision(obj1);
+                    }
+                }
+            }
+        }
+
+        private void RemoveDeadObject()
+        {
+            mObjects.RemoveAll(obj => obj.IsDead());
         }
     }
 }

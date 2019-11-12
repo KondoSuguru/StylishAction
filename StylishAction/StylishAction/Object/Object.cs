@@ -10,14 +10,17 @@ namespace StylishAction.Object
 {
     public abstract class Object
     {
-        protected Vector2 mPosition;
         protected string mName;
+        protected Vector2 mPosition;
+        protected int mSize;
         protected bool mIsDead;
 
-        public Object(string name)
+        public Object(string name, int size)
         {
-            mPosition = Vector2.Zero;
             mName = name;
+            mPosition = Vector2.Zero;
+            mSize = size;
+            ObjectManager.Instance().AddObject(this);
         }
 
         public virtual void Initialize()
@@ -42,9 +45,21 @@ namespace StylishAction.Object
             return mPosition;
         }
 
+        public int GetSize()
+        {
+            return mSize;
+        }
+
+        public bool IsDead()
+        {
+            return mIsDead;
+        }
+
         public void Translate(Vector2 translation)
         {
             mPosition += translation;
         }
+
+        public abstract void Collision(Object other);
     }
 }
