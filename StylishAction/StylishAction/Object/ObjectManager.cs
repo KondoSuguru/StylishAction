@@ -12,10 +12,12 @@ namespace StylishAction.Object
     {
         private static ObjectManager mInstance;
         private List<Object> mObjects;
+        private List<Object> mAddObjects;
 
         private ObjectManager()
         {
             mObjects = new List<Object>();
+            mAddObjects = new List<Object>();
         }
 
         public static ObjectManager Instance()
@@ -29,17 +31,15 @@ namespace StylishAction.Object
 
         public void Initialize()
         {
-            foreach(var o in mObjects)
-            {
-                o.Initialize();
-            }
+            mObjects.Clear();
+            mAddObjects.Clear();
         }
 
         public void AddObject(Object obj)
         {
             if (obj == null)
                 return;
-            mObjects.Add(obj);
+            mAddObjects.Add(obj);
         }
 
         public void Update(GameTime gameTime)
@@ -48,6 +48,13 @@ namespace StylishAction.Object
             {
                 o.Update(gameTime);
             }
+
+            foreach(var addObj in mAddObjects)
+            {
+                addObj.Initialize();
+                mObjects.Add(addObj);
+            }
+            mAddObjects.Clear();
 
             Collision();
             RemoveDeadObject();
@@ -64,6 +71,7 @@ namespace StylishAction.Object
         public void Clear()
         {
             mObjects.Clear();
+            mAddObjects.Clear();
         }
 
         public List<Object> GetObjects()

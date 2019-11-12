@@ -39,7 +39,7 @@ namespace StylishAction.Scene
 
         public void Update(GameTime gameTime)
         {
-            if (Input.GetKeyTrigger(Keys.Z))
+            if (Input.GetKeyTrigger(Keys.Enter))
             {
                 mIsEnd = true;
             }

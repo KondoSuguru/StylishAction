@@ -24,10 +24,10 @@ namespace StylishAction.Scene
         {
             mIsEnd = false;
             mNextScene = Scene.Title;
+            ObjectManager.Instance().Initialize();
 
             new Player("player", 32);
             new Enemy("enemy", 32);
-            ObjectManager.Instance().Initialize();
         }
 
         public bool IsEnd()
@@ -49,7 +49,7 @@ namespace StylishAction.Scene
         {
             ObjectManager.Instance().Update(gameTime);
 
-            if (Input.GetKeyTrigger(Keys.Z))
+            if (Input.GetKeyTrigger(Keys.Enter))
             {
                 mIsEnd = true;
             }
