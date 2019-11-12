@@ -12,6 +12,8 @@ namespace StylishAction.Object
 {
     class Player : Object
     {
+        private Vector2 mVelocity;
+        private readonly float mGravity;
         private readonly float mSpeed;
         private readonly float mDashSpeed;
         private int mDashTimer;
@@ -19,11 +21,19 @@ namespace StylishAction.Object
         private bool mIsDash;
         private readonly float mJumpPower;
         private int mJumpCount;
-        private readonly float mGravity;
-        private Vector2 mVelocity;
         private readonly int mMaxHitPoint;
         private int mHitPoint;
 
+        private bool mIsInvisible;
+        private int mInvisibleTimer;
+
+        private enum MoveState
+        {
+            OnGround,
+            JumpUp,
+            JumpDown,
+        }
+        private MoveState mMoveState;
 
         private enum Direction
         {
@@ -57,12 +67,15 @@ namespace StylishAction.Object
             base.Initialize();
             mPosition = Vector2.Zero;
             mVelocity = Vector2.Zero;
+            mDashTimer = 0;
+            mDashCount = 2;
+            mIsDash = false;
             mJumpCount = 0;
             mHitPoint = mMaxHitPoint;
-            mIsDash = false;
-            mDashTimer = 5;
-            mDashCount = 2;
+            mIsInvisible = false;
+            mInvisibleTimer = 0;
             mWeakAttackTimer = 5;
+            mMoveState = MoveState.OnGround;
             mCurrentDir = Direction.Right;
             mPreviousDir = mCurrentDir;
             mAttackState = AttackState.None;
@@ -72,12 +85,14 @@ namespace StylishAction.Object
         {
             base.Update(gameTime);
 
+            DirectionUpdate();
+            InvisibleUpdate();
+
             Move();
             Dash();
             Fall();
             Jump();
             WeakAttack();
-            DirectionUpdate();
             if (mAttackState == AttackState.None)
             {
                 Translate(mVelocity);
@@ -102,6 +117,7 @@ namespace StylishAction.Object
                 return;
             if (Input.GetKeyTrigger(Keys.Space) && mJumpCount > 0)
             {
+                mMoveState = MoveState.JumpUp;
                 mVelocity.Y = -mJumpPower;
                 mJumpCount--;
 
@@ -117,13 +133,13 @@ namespace StylishAction.Object
             }
             if (mIsDash)
             {
-                mDashTimer--;
+                mDashTimer++;
                 mVelocity.Y = 0;
                 mVelocity.X = ((int)mPreviousDir - 2) * mDashSpeed;
-                if(mDashTimer < 0)
+                if(mDashTimer > 5)
                 {
                     mIsDash = false;
-                    mDashTimer = 5;
+                    mDashTimer = 0;
                 }
             }
         }
@@ -137,9 +153,14 @@ namespace StylishAction.Object
             {
                 mVelocity.Y += mGravity;
                 mVelocity.Y = ((mVelocity.Y >= 100) ? 100 : mVelocity.Y);
+                if(mVelocity.Y > 0)
+                {
+                    mMoveState = MoveState.JumpDown;
+                }
             }
             else
             {
+                mMoveState = MoveState.OnGround;
                 mPosition.Y = Screen.HEIGHT - 64;
                 mVelocity.Y = 0;
                 mJumpCount = 2;
@@ -188,18 +209,20 @@ namespace StylishAction.Object
 
         private void DirectionUpdate()
         {
-            if (Input.GetKeyTrigger(Keys.Right))
+            if (mIsDash)
+                return;
+            if (Input.GetKeyState(Keys.Right))
             {
                 mCurrentDir = Direction.Right;
                 mPreviousDir = mCurrentDir;
             }
-            if (Input.GetKeyTrigger(Keys.Left))
+            if (Input.GetKeyState(Keys.Left))
             {
                 mCurrentDir = Direction.Left;
                 mPreviousDir = mCurrentDir;
             }
 
-            if (Input.GetKeyTrigger(Keys.Up))
+            if (Input.GetKeyState(Keys.Up))
             {
                 mCurrentDir = Direction.Up;
             }
@@ -208,7 +231,7 @@ namespace StylishAction.Object
                 mCurrentDir = mPreviousDir;
             }
 
-            if (Input.GetKeyTrigger(Keys.Down))
+            if (Input.GetKeyState(Keys.Down))
             {
                 mCurrentDir = Direction.Down;
             }
@@ -218,16 +241,45 @@ namespace StylishAction.Object
             }
         }
 
+        private void InvisibleUpdate()
+        {
+            if (mIsInvisible)
+            {
+                mInvisibleTimer++;
+                if(mInvisibleTimer >= 60)
+                {
+                    mIsInvisible = false;
+                    mInvisibleTimer = 0;
+                }
+            }
+        }
+
         public Vector2 GetVelocity()
         {
             return mVelocity;
+        }
+
+        public override void Draw()
+        {
+            if (mIsInvisible)
+            {
+                GameDevice.Instance().GetRenderer().DrawTexture(mName, mPosition, 0.5f);
+            }
+            else
+            {
+                base.Draw();
+            }
         }
 
         public override void Collision(Object other)
         {
             if (other is Enemy)
             {
-                mHitPoint--;
+                if (!mIsDash && !mIsInvisible)
+                {
+                    mIsInvisible = true;
+                    mHitPoint--;
+                }
             }
         }
     }
