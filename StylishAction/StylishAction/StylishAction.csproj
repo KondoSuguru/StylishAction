@@ -54,6 +54,7 @@
     <Compile Include="Scene\Scene.cs" />
     <Compile Include="Scene\SceneBase.cs" />
     <Compile Include="Scene\SceneManager.cs" />
+    <Compile Include="Scene\Title.cs" />
     <Compile Include="Utility\Input.cs" />
   </ItemGroup>
   <ItemGroup>

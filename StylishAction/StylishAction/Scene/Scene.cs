@@ -8,6 +8,7 @@ namespace StylishAction.Scene
 {
     enum Scene
     {
+        Title,
         GamePlay,
         None,
     }

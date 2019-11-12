@@ -26,8 +26,9 @@ namespace StylishAction
             GameDevice.Instance(Content, GraphicsDevice);
 
             mSceneManager = new SceneManager();
+            mSceneManager.Add(Scene.Scene.Title, new Title());
             mSceneManager.Add(Scene.Scene.GamePlay, new GamePlay());
-            mSceneManager.Change(Scene.Scene.GamePlay);
+            mSceneManager.Change(Scene.Scene.Title);
 
             base.Initialize();
         }
