@@ -16,15 +16,20 @@ namespace StylishAction.Utility
         // キーボード
         private static KeyboardState mCurrentKey; // 現在のキーの状態
         private static KeyboardState mPreviousKey; // 1フレーム前のキーの状態
+        private static Keys mBufferKey; //バッファしているキー
         // マウス
         private static MouseState mCurrentMouse; // 現在のマウスの状態
         private static MouseState mPreviousMouse; // 1フレーム前のマウスの状態
+
+        private static bool mIsBuffer = false; //バッファを保持するかどうか
+        private static bool mIsSetBuffer = false; //バッファをセットするかどうか
 
         public static void Update()
         {
             // キーボード
             mPreviousKey = mCurrentKey;
             mCurrentKey = Keyboard.GetState();
+
             // マウス
             mPreviousMouse = mCurrentMouse;
             mCurrentMouse = Mouse.GetState();
@@ -82,6 +87,12 @@ namespace StylishAction.Utility
         /// <returns>現在キーが押されていて、1フレーム前に押されていなければtrue</returns>
         public static bool IsKeyDown(Keys key)
         {
+            if(mIsSetBuffer && key == mBufferKey) //バッファセット状態で、バッファを取ったキーと判定したいキーが同じなら
+            {
+                mIsSetBuffer = false; //バッファセット状態を解除
+                mBufferKey = Keys.End; //まず使わないであろうキーをバッファキーにセット
+                return true; //押したということにする。
+            }
             return mCurrentKey.IsKeyDown(key) && !mPreviousKey.IsKeyDown(key);
         }
 
@@ -109,6 +120,25 @@ namespace StylishAction.Utility
         public static bool GetKeyUp(Keys key)
         {
             return !mCurrentKey.IsKeyDown(key) && mPreviousKey.IsKeyDown(key);
+        }
+
+        public static void SetBufferKey(Keys key)
+        {
+            //バッファ取りたいキーを入力したら
+            if (GetKeyTrigger(key))
+            {
+                mIsBuffer = true; //バッファ保持状態にする
+                mBufferKey = key;//入力状態をバッファしたキーをセット
+            }
+        }
+
+        public static void BufferInput()
+        {
+            if (mIsBuffer)//バッファ保持状態なら
+            {
+                mIsSetBuffer = true; //バッファセット状態にする
+                mIsBuffer = false; //バッファ保持状態解除
+            }
         }
 
         // マウス関連

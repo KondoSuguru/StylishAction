@@ -68,6 +68,7 @@ namespace StylishAction.Object
 
             InvisibleUpdate();
 
+            Dash();
             if (mMoveState != MoveState.Dash)
             {
                 DirectionUpdate();
@@ -76,7 +77,6 @@ namespace StylishAction.Object
                 Jump();
                 WeakAttack();
             }
-            Dash();
 
             if (mAttackState == AttackState.None)
             {
@@ -130,14 +130,6 @@ namespace StylishAction.Object
         private void InputX()
         {
             mVelocity.X = Input.Velocity().X * mSpeed;
-            if(mVelocity.X != 0 && (mMoveState == MoveState.Stay || mMoveState == MoveState.Walk))
-            {
-                mMoveState = MoveState.Walk;
-            }
-            if (mVelocity.X == 0 && (mMoveState == MoveState.Stay || mMoveState == MoveState.Walk))
-            {
-                mMoveState = MoveState.Stay;
-            }
         }
 
         private void Jump()
@@ -162,10 +154,18 @@ namespace StylishAction.Object
                 mDashTimer++;
                 mVelocity.Y = 0;
                 mVelocity.X = ((int)mPreviousDir - 2) * mDashSpeed;
-                if(mDashTimer > 5)
+
+                //ダッシュ状態中、先行入力受付
+                Input.SetBufferKey(Keys.Space);
+                Input.SetBufferKey(Keys.Z);
+                //Input.SetBufferKey(Keys.X);
+
+                if (mDashTimer > 5)
                 {
                     mMoveState = MoveState.JumpDown;
                     mDashTimer = 0;
+
+                    Input.BufferInput();
                 }
             }
         }
