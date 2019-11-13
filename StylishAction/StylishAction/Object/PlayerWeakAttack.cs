@@ -13,7 +13,7 @@ namespace StylishAction.Object
         private int mTimer;
         private Player mPlayer;
 
-        public PlayerWeakAttack(string name, int size, Vector2 origin, int timer) : base(name, size)
+        public PlayerWeakAttack(string name, Vector2 size, Vector2 origin, int timer) : base(name, size)
         {
             SetOrigin(origin);
             mTimer = timer;

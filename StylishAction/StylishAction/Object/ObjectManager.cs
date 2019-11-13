@@ -11,12 +11,16 @@ namespace StylishAction.Object
     sealed class ObjectManager
     {
         private static ObjectManager mInstance;
-        private List<Object> mObjects;
+        private List<Object> mPlayers;
+        private List<Object> mEnemys;
+        private List<Object> mStages;
         private List<Object> mAddObjects;
 
         private ObjectManager()
         {
-            mObjects = new List<Object>();
+            mPlayers = new List<Object>();
+            mEnemys = new List<Object>();
+            mStages = new List<Object>();
             mAddObjects = new List<Object>();
         }
 
@@ -31,7 +35,9 @@ namespace StylishAction.Object
 
         public void Initialize()
         {
-            mObjects.Clear();
+            mPlayers.Clear();
+            mEnemys.Clear();
+            mStages.Clear();
             mAddObjects.Clear();
         }
 
@@ -44,54 +50,93 @@ namespace StylishAction.Object
 
         public void Update(GameTime gameTime)
         {
-            foreach (var o in mObjects)
+            foreach (var p in mPlayers)
             {
-                o.Update(gameTime);
+                p.Update(gameTime);
+            }
+            foreach (var e in mEnemys)
+            {
+                e.Update(gameTime);
+            }
+            foreach (var s in mStages)
+            {
+                s.Update(gameTime);
             }
 
-            foreach(var addObj in mAddObjects)
+            foreach (var addObj in mAddObjects)
             {
                 addObj.Initialize();
-                mObjects.Add(addObj);
+                if(addObj is Player || addObj is PlayerWeakAttack)
+                {
+                    mPlayers.Add(addObj);
+                }
+                if(addObj is Enemy)
+                {
+                    mEnemys.Add(addObj);
+                }
+                if(addObj is Wall)
+                {
+                    mStages.Add(addObj);
+                }
             }
             mAddObjects.Clear();
 
-            Collision();
+            Collision_P_E();
             RemoveDeadObject();
         }
 
         public void Draw()
         {
-            foreach(var o in mObjects)
+            foreach(var s in mStages)
             {
-                o.Draw();
+                s.Draw();
+            }
+            foreach(var e in mEnemys)
+            {
+                e.Draw();
+            }
+            foreach(var p in mPlayers)
+            {
+                p.Draw();
             }
         }
 
         public void Clear()
         {
-            mObjects.Clear();
+            mPlayers.Clear();
+            mEnemys.Clear();
+            mStages.Clear();
             mAddObjects.Clear();
         }
 
-        public List<Object> GetObjects()
+        public List<Object> GetPlayers()
         {
-            return mObjects;
+            return mPlayers;
         }
 
-        private void Collision()
+        public List<Object> GetEnemys()
         {
-            //総当たり判定
-            for(int i = 0; i < mObjects.Count - 1; i++)
+            return mEnemys;
+        }
+
+        public List<Object> GetStages()
+        {
+            return mStages;
+        }
+
+        private void Collision_P_E()
+        {
+            //プレイヤーリストとエネミーリストの当たり判定（円）
+            for(int i = 0; i < mPlayers.Count; i++)
             {
-                Object obj1 = mObjects[i];
-                for (int j = i + 1; j < mObjects.Count; j++)
+                Object p = mPlayers[i];
+                for (int j = 0; j < mEnemys.Count; j++)
                 {
-                    Object obj2 = mObjects[j];
-                    if(Vector2.Distance(obj1.GetPosition(),obj2.GetPosition()) <= (obj1.GetSize() + obj2.GetSize()) / 2)
+                    Object e = mEnemys[j];
+                    if(Vector2.Distance(p.GetPosition(),e.GetPosition()) <= (p.GetSize().X + e.GetSize().X) / 2)
                     {
-                        obj1.Collision(obj2);
-                        obj2.Collision(obj1);
+                        p.Collision(e);
+                        e.Collision(p);
                     }
                 }
             }
@@ -99,7 +144,43 @@ namespace StylishAction.Object
 
         private void RemoveDeadObject()
         {
-            mObjects.RemoveAll(obj => obj.IsDead());
+            mPlayers.RemoveAll(obj => obj.IsDead());
+            mEnemys.RemoveAll(obj => obj.IsDead());
+            mStages.RemoveAll(obj => obj.IsDead());
+        }
+
+        public bool IsStageCollisionX(Vector2 origin, Vector2 size)
+        {
+            //ステージと当たっているか（x方向、円と矩形）
+            for(int i = 0; i < mStages.Count; i++)
+            {
+                Object s = mStages[i];
+                if((origin.Y > s.GetPosition().Y - (size.Y / 2)) && (origin.Y < s.GetPosition().Y + s.GetSize().Y + (size.Y / 2)))
+                {
+                    if(Math.Abs(origin.X - s.GetOrigin().X) < (size.X + s.GetSize().X) / 2)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        public bool IsStageCollisionY(Vector2 origin, Vector2 size)
+        {
+            //ステージと当たっているか（y方向、円と矩形）
+            for (int i = 0; i < mStages.Count; i++)
+            {
+                Object s = mStages[i];
+                if ((origin.X > s.GetPosition().X - (size.X / 2)) && (origin.X < s.GetPosition().X + s.GetSize().X + (size.X / 2)))
+                {
+                    if (Math.Abs(origin.Y - s.GetOrigin().Y) < (size.Y + s.GetSize().Y) / 2)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
     }
 }

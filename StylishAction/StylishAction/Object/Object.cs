@@ -11,17 +11,21 @@ namespace StylishAction.Object
     public abstract class Object
     {
         protected string mName;
-        protected int mSize;
+        protected Vector2 mSize;
         protected Vector2 mPosition;
-        protected Vector2 mOrigin;
+        protected Vector2 mOrigin;//中心点
+        protected Color mColor;
+        protected float mAlpha;
         protected bool mIsDead;
 
-        public Object(string name, int size)
+        public Object(string name, Vector2 size)
         {
             mName = name;
             mSize = size;
             mPosition = Vector2.Zero;
-            mOrigin = new Vector2(mPosition.X + size / 2, mPosition.Y + size / 2);
+            mOrigin = new Vector2(mPosition.X + (mSize.X / 2), mPosition.Y + (mSize.Y / 2));
+            mColor = new Color(255, 255, 255);
+            mAlpha = 1.0f;
             ObjectManager.Instance().AddObject(this);
         }
 
@@ -32,12 +36,17 @@ namespace StylishAction.Object
 
         public virtual void Update(GameTime gameTime)
         {
-            mOrigin = new Vector2(mPosition.X + mSize / 2, mPosition.Y + mSize / 2);
+            mOrigin = new Vector2(mPosition.X + (mSize.X / 2), mPosition.Y + (mSize.Y / 2));
         }
 
         public virtual void Draw()
         {
-            GameDevice.Instance().GetRenderer().DrawTexture(mName, mPosition);
+            GameDevice.Instance().GetRenderer().DrawTexture(mName, mPosition, mColor, mAlpha);
+        }
+
+        public Vector2 GetSize()
+        {
+            return mSize;
         }
 
         public void SetPosition(Vector2 position)
@@ -53,7 +62,7 @@ namespace StylishAction.Object
         public void SetOrigin(Vector2 origin)
         {
             mOrigin = origin;
-            mPosition = new Vector2(mOrigin.X - mSize / 2, mOrigin.Y - mSize / 2);
+            mPosition = new Vector2(mOrigin.X - (mSize.X / 2), mOrigin.Y - (mSize.Y / 2));
         }
 
         public Vector2 GetOrigin()
@@ -61,9 +70,24 @@ namespace StylishAction.Object
             return mOrigin;
         }
 
-        public int GetSize()
+        public void SetColor(Color color)
         {
-            return mSize;
+            mColor = color;
+        }
+
+        public Color GetColor()
+        {
+            return mColor;
+        }
+
+        public void SetAlpha(float alpha)
+        {
+            mAlpha = alpha;
+        }
+
+        public float GetAlpha()
+        {
+            return mAlpha;
         }
 
         public bool IsDead()
@@ -71,7 +95,7 @@ namespace StylishAction.Object
             return mIsDead;
         }
 
-        public void Translate(Vector2 translation)
+        public virtual void Translate(Vector2 translation)
         {
             mPosition += translation;
         }

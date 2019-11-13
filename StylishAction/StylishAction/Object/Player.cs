@@ -10,50 +10,36 @@ using StylishAction.Utility;
 
 namespace StylishAction.Object
 {
-    class Player : Object
+    class Player : Character
     {
-        private Vector2 mVelocity;
-        private readonly float mGravity;
-        private readonly float mSpeed;
         private readonly float mDashSpeed;
         private int mDashTimer;
         private int mDashCount;
-        private bool mIsDash;
         private readonly float mJumpPower;
         private int mJumpCount;
-        private readonly int mMaxHitPoint;
-        private int mHitPoint;
-
         private bool mIsInvisible;
         private int mInvisibleTimer;
 
         private enum MoveState
         {
-            OnGround,
+            Stay,
+            Walk,
+            Dash,
             JumpUp,
             JumpDown,
         }
         private MoveState mMoveState;
 
-        private enum Direction
-        {
-            Up,
-            Left,
-            Down,
-            Right,
-        }
-        private Direction mCurrentDir; //今のDirection
-        private Direction mPreviousDir;//前のDirection
-
         private enum AttackState
         {
             WeakAttack,
+            StrongAttack,
             None,
         }
         private AttackState mAttackState;
         private int mWeakAttackTimer;
 
-        public Player(string name, int size) : base(name, size)
+        public Player(string name, Vector2 size) : base(name, size)
         {
             mSpeed = 5;
             mDashSpeed = 50;
@@ -65,19 +51,14 @@ namespace StylishAction.Object
         public override void Initialize()
         {
             base.Initialize();
-            mPosition = Vector2.Zero;
-            mVelocity = Vector2.Zero;
+            mPosition = new Vector2(100,100);
             mDashTimer = 0;
             mDashCount = 2;
-            mIsDash = false;
             mJumpCount = 0;
-            mHitPoint = mMaxHitPoint;
             mIsInvisible = false;
             mInvisibleTimer = 0;
             mWeakAttackTimer = 5;
-            mMoveState = MoveState.OnGround;
-            mCurrentDir = Direction.Right;
-            mPreviousDir = mCurrentDir;
+            mMoveState = MoveState.JumpDown;
             mAttackState = AttackState.None;
         }
 
@@ -85,60 +66,105 @@ namespace StylishAction.Object
         {
             base.Update(gameTime);
 
-            DirectionUpdate();
             InvisibleUpdate();
 
-            Move();
+            if (mMoveState != MoveState.Dash)
+            {
+                DirectionUpdate();
+                InputX();
+                Fall();
+                Jump();
+                WeakAttack();
+            }
             Dash();
-            Fall();
-            Jump();
-            WeakAttack();
+
             if (mAttackState == AttackState.None)
             {
                 Translate(mVelocity);
             }
+            MoveStateUpdate();
+        }
 
-            if (mHitPoint <= 0)
+        public override void Translate(Vector2 translation)
+        {
+            //壁や床にめり込まないように1ピクセルずつ当たり判定を取る
+            for(int i = 0; i < Math.Abs(translation.X); i++)
             {
-                mIsDead = true;
+                float x = translation.X / Math.Abs(translation.X);
+                if (ObjectManager.Instance().IsStageCollisionX(mOrigin + new Vector2(x, 0), mSize))
+                    break;
+
+                mPosition.X += x;
+                mOrigin.X += x;
+            }
+
+            for (int i = 0; i < Math.Abs(translation.Y); i++)
+            {
+                float y = translation.Y / Math.Abs(translation.Y);
+                if (ObjectManager.Instance().IsStageCollisionY(mOrigin + new Vector2(0, y), mSize))
+                {
+                    if(y > 0)
+                    {
+                        Landing();
+                    }
+                    else
+                    {
+                        mVelocity.Y = 0;
+                    }
+                    break;
+                }
+
+                mPosition.Y += y;
+                mOrigin.Y += y;
             }
         }
 
-        private void Move()
+        private void Landing()
         {
-            if (mIsDash)
-                return;
+            mVelocity.Y = 0;
+            mMoveState = MoveState.Stay;
+            mJumpCount = 2;
+            mDashCount = 2;
+        }
+
+        private void InputX()
+        {
             mVelocity.X = Input.Velocity().X * mSpeed;
+            if(mVelocity.X != 0 && (mMoveState == MoveState.Stay || mMoveState == MoveState.Walk))
+            {
+                mMoveState = MoveState.Walk;
+            }
+            if (mVelocity.X == 0 && (mMoveState == MoveState.Stay || mMoveState == MoveState.Walk))
+            {
+                mMoveState = MoveState.Stay;
+            }
         }
 
         private void Jump()
         {
-            if (mIsDash)
-                return;
             if (Input.GetKeyTrigger(Keys.Space) && mJumpCount > 0)
             {
                 mMoveState = MoveState.JumpUp;
                 mVelocity.Y = -mJumpPower;
                 mJumpCount--;
-
             }
         }
 
         private void Dash()
         {
-            if (!mIsDash && Input.GetKeyTrigger(Keys.X) && mDashCount > 0)
+            if (mMoveState != MoveState.Dash && Input.GetKeyTrigger(Keys.X) && mDashCount > 0)
             {
-                mIsDash = true;
+                mMoveState = MoveState.Dash;
                 mDashCount--;
             }
-            if (mIsDash)
+            if (mMoveState == MoveState.Dash)
             {
                 mDashTimer++;
                 mVelocity.Y = 0;
                 mVelocity.X = ((int)mPreviousDir - 2) * mDashSpeed;
                 if(mDashTimer > 5)
                 {
-                    mIsDash = false;
+                    mMoveState = MoveState.JumpDown;
                     mDashTimer = 0;
                 }
             }
@@ -146,34 +172,13 @@ namespace StylishAction.Object
 
         private void Fall()
         {
-            if (mIsDash)
-                return;
-
-            if (mPosition.Y < Screen.HEIGHT - 64)
-            {
-                mVelocity.Y += mGravity;
-                mVelocity.Y = ((mVelocity.Y >= 100) ? 100 : mVelocity.Y);
-                if(mVelocity.Y > 0)
-                {
-                    mMoveState = MoveState.JumpDown;
-                }
-            }
-            else
-            {
-                mMoveState = MoveState.OnGround;
-                mPosition.Y = Screen.HEIGHT - 64;
-                mVelocity.Y = 0;
-                mJumpCount = 2;
-                mDashCount = 2;
-            }
+            mVelocity.Y += mGravity;
+            mVelocity.Y = ((mVelocity.Y >= 100) ? 100 : mVelocity.Y);
         }
 
         private void WeakAttack()
         {
-            if (mIsDash)
-                return;
-
-            if (Input.GetKeyTrigger(Keys.Z) && mAttackState == AttackState.None)
+            if (Input.GetKeyUp(Keys.Z) && mAttackState == AttackState.None)
             {
                 Vector2 attackOrigin = Vector2.Zero;
                 switch (mCurrentDir)
@@ -191,26 +196,24 @@ namespace StylishAction.Object
                         attackOrigin = new Vector2(mOrigin.X - 32, mOrigin.Y);
                         break;
                 }
-                new PlayerWeakAttack("player", 32, attackOrigin, mWeakAttackTimer);
+                new PlayerWeakAttack("enemy", new Vector2(32, 32), attackOrigin, mWeakAttackTimer);
                 mAttackState = AttackState.WeakAttack;
             }
 
             if(mAttackState == AttackState.WeakAttack)
             {
+                mVelocity = Vector2.Zero;
                 mWeakAttackTimer--;
                 if(mWeakAttackTimer <= 0)
                 {
                     mAttackState = AttackState.None;
                     mWeakAttackTimer = 5;
-                    mVelocity = Vector2.Zero;
                 }
             }
         }
 
         private void DirectionUpdate()
         {
-            if (mIsDash)
-                return;
             if (Input.GetKeyState(Keys.Right))
             {
                 mCurrentDir = Direction.Right;
@@ -245,37 +248,70 @@ namespace StylishAction.Object
         {
             if (mIsInvisible)
             {
+                SetAlpha(0.1f);
                 mInvisibleTimer++;
                 if(mInvisibleTimer >= 60)
                 {
+                    SetAlpha(1.0f);
                     mIsInvisible = false;
                     mInvisibleTimer = 0;
                 }
             }
         }
 
-        public Vector2 GetVelocity()
+        private void MoveStateUpdate()
         {
-            return mVelocity;
+            if(mMoveState == MoveState.Dash)
+            {
+                return;
+            }
+            if(mVelocity == Vector2.Zero)
+            {
+                mMoveState = MoveState.Stay;
+            }
+            if(mVelocity.X != 0)
+            {
+                mMoveState = MoveState.Walk;
+            }
+            if(mVelocity.Y < 0)
+            {
+                mMoveState = MoveState.JumpUp;
+            }
+            if(mVelocity.Y > 0)
+            {
+                mMoveState = MoveState.JumpDown;
+            }
         }
 
         public override void Draw()
         {
-            if (mIsInvisible)
+            //stateで色を変える（テスト）
+            switch (mMoveState)
             {
-                GameDevice.Instance().GetRenderer().DrawTexture(mName, mPosition, 0.5f);
+                case MoveState.Stay:
+                    SetColor(new Color(255,255,255));
+                    break;
+                case MoveState.Walk:
+                    SetColor(new Color(255, 0, 0));
+                    break;
+                case MoveState.JumpUp:
+                    SetColor(new Color(0, 255, 0));
+                    break;
+                case MoveState.JumpDown:
+                    SetColor(new Color(0, 0, 255));
+                    break;
+                case MoveState.Dash:
+                    SetColor(new Color(255, 0, 255));
+                    break;
             }
-            else
-            {
-                base.Draw();
-            }
+            base.Draw();
         }
 
         public override void Collision(Object other)
         {
             if (other is Enemy)
             {
-                if (!mIsDash && !mIsInvisible)
+                if (mMoveState != MoveState.Dash && !mIsInvisible)
                 {
                     mIsInvisible = true;
                     mHitPoint--;
