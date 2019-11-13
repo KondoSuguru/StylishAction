@@ -68,7 +68,6 @@ namespace StylishAction.Object
 
             InvisibleUpdate();
 
-            Dash();
             if (mMoveState != MoveState.Dash)
             {
                 DirectionUpdate();
@@ -77,6 +76,7 @@ namespace StylishAction.Object
                 Jump();
                 WeakAttack();
             }
+            Dash();
 
             if (mAttackState == AttackState.None)
             {

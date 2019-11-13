@@ -87,12 +87,6 @@ namespace StylishAction.Utility
         /// <returns>現在キーが押されていて、1フレーム前に押されていなければtrue</returns>
         public static bool IsKeyDown(Keys key)
         {
-            if(mIsSetBuffer && key == mBufferKey) //バッファセット状態で、バッファを取ったキーと判定したいキーが同じなら
-            {
-                mIsSetBuffer = false; //バッファセット状態を解除
-                mBufferKey = Keys.End; //まず使わないであろうキーをバッファキーにセット
-                return true; //押したということにする。
-            }
             return mCurrentKey.IsKeyDown(key) && !mPreviousKey.IsKeyDown(key);
         }
 
@@ -103,6 +97,12 @@ namespace StylishAction.Utility
         /// <returns>押された瞬間ならtrue</returns>
         public static bool GetKeyTrigger(Keys key)
         {
+            if (mIsSetBuffer && key == mBufferKey) //バッファセット状態で、バッファを取ったキーと判定したいキーが同じなら
+            {
+                mIsSetBuffer = false; //バッファセット状態を解除
+                mBufferKey = Keys.End; //まず使わないであろうキーをバッファキーにセット
+                return true; //押したということにする。
+            }
             return IsKeyDown(key);
         }
 
@@ -113,12 +113,24 @@ namespace StylishAction.Utility
         /// <returns>キーが押されていたらtrue</returns>
         public static bool GetKeyState(Keys key)
         {
+            if (mIsSetBuffer && key == mBufferKey) //バッファセット状態で、バッファを取ったキーと判定したいキーが同じなら
+            {
+                mIsSetBuffer = false; //バッファセット状態を解除
+                mBufferKey = Keys.End; //まず使わないであろうキーをバッファキーにセット
+                return true; //押したということにする。
+            }
             return mCurrentKey.IsKeyDown(key);
         }
 
         //キーが離された瞬間
         public static bool GetKeyUp(Keys key)
         {
+            if (mIsSetBuffer && key == mBufferKey) //バッファセット状態で、バッファを取ったキーと判定したいキーが同じなら
+            {
+                mIsSetBuffer = false; //バッファセット状態を解除
+                mBufferKey = Keys.End; //まず使わないであろうキーをバッファキーにセット
+                return true; //離したということにする。
+            }
             return !mCurrentKey.IsKeyDown(key) && mPreviousKey.IsKeyDown(key);
         }
 
