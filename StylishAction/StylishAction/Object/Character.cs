@@ -39,9 +39,9 @@ namespace StylishAction.Object
             mPreviousDir = mCurrentDir;
         }
 
-        public override void Update(GameTime gameTime)
+        public override void Update(float deltaTime)
         {
-            base.Update(gameTime);
+            base.Update(deltaTime);
 
             if (mHitPoint <= 0)
             {
@@ -53,11 +53,6 @@ namespace StylishAction.Object
         {
             //死ぬときの処理
             mIsDead = true;
-        }
-
-        public override void Collision(Object other)
-        {
-            
         }
     }
 }

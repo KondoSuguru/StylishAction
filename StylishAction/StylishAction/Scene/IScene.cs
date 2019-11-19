@@ -10,7 +10,7 @@ namespace StylishAction.Scene
     interface IScene
     {
         void Initialize();
-        void Update(GameTime gameTime);
+        void Update(float deltaTime);
         void Draw();
         void Shutdown();
 

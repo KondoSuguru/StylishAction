@@ -37,7 +37,7 @@ namespace StylishAction.Scene
             
         }
 
-        public void Update(GameTime gameTime)
+        public void Update(float deltaTime)
         {
             if (Input.GetKeyTrigger(Keys.Enter))
             {

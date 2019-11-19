@@ -5,11 +5,15 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using StylishAction.Device;
+using StylishAction.Utility;
 
 namespace StylishAction.Object
 {
     class Enemy : Character
     {
+        private bool mIsPlayerAttackCollision;
+        private CountDownTimer mTimer;
+
         private enum MoveState
         {
             Stay,
@@ -19,9 +23,10 @@ namespace StylishAction.Object
         }
         private MoveState mMoveState;
 
-        public Enemy(string name, Vector2 size) : base(name, size)
+        public Enemy(string name, Vector2 size, float speed) : base(name, size)
         {
-            mGravity = 1;
+            mSpeed = speed;
+            mGravity = 50;
             mMaxHitPoint = 1;
         }
 
@@ -30,18 +35,31 @@ namespace StylishAction.Object
             base.Initialize();
             mPosition = new Vector2(500,500);
             mMoveState = MoveState.JumpDown;
+            mIsPlayerAttackCollision = false;
+            mTimer = new CountDownTimer();
+            mVelocity = new Vector2(1, 0);
         }
 
-        public override void Update(GameTime gameTime)
+        public override void Update(float deltaTime)
         {
-            base.Update(gameTime);
+            base.Update(deltaTime);
 
             Fall();
-            Translate(mVelocity);
+            Translate(new Vector2( mVelocity.X * mSpeed, mVelocity.Y) * deltaTime);
 
             if(mHitPoint <= 0)
             {
                 mIsDead = true;
+            }
+
+            if (mIsPlayerAttackCollision)
+            {
+                mTimer.Update(deltaTime);
+                if (mTimer.IsTime())
+                {
+                    mTimer.Initialize();
+                    mIsPlayerAttackCollision = false;
+                }
             }
         }
 
@@ -52,7 +70,10 @@ namespace StylishAction.Object
             {
                 float x = translation.X / Math.Abs(translation.X);
                 if (ObjectManager.Instance().IsStageCollisionX(mOrigin + new Vector2(x, 0), mSize))
+                {
+                    mVelocity.X *= -1;//反転
                     break;
+                }
 
                 mPosition.X += x;
                 mOrigin.X += x;
@@ -90,7 +111,6 @@ namespace StylishAction.Object
             if (mMoveState != MoveState.Stay)
             {
                 mVelocity.Y += mGravity;
-                mVelocity.Y = ((mVelocity.Y >= 100) ? 100 : mVelocity.Y);
             }
             if (mVelocity.Y > 0)
             {
@@ -100,9 +120,14 @@ namespace StylishAction.Object
 
         public override void Collision(Object other)
         {
-            if(other is PlayerWeakAttack)
+            if(other is PlayerWeakAttack && !mIsPlayerAttackCollision)
             {
-                mHitPoint--;
+                Random r = GameDevice.Instance().GetRandom();
+                mColor = new Color(r.Next(0, 255), r.Next(0, 255), r.Next(0, 255));
+                //mHitPoint--;
+
+                mTimer.SetTime(((PlayerWeakAttack)other).GetLimitTime() + 0.1f);
+                mIsPlayerAttackCollision = true;
             }
         }
     }

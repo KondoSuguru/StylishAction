@@ -60,7 +60,10 @@
     <Compile Include="Scene\SceneBase.cs" />
     <Compile Include="Scene\SceneManager.cs" />
     <Compile Include="Scene\Title.cs" />
+    <Compile Include="Utility\CountDownTimer.cs" />
+    <Compile Include="Utility\HitStop.cs" />
     <Compile Include="Utility\Input.cs" />
+    <Compile Include="Utility\Timer.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="MonoGame.Framework">

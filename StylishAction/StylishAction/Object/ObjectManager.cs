@@ -48,19 +48,19 @@ namespace StylishAction.Object
             mAddObjects.Add(obj);
         }
 
-        public void Update(GameTime gameTime)
+        public void Update(float deltaTime)
         {
             foreach (var p in mPlayers)
             {
-                p.Update(gameTime);
+                p.Update(deltaTime);
             }
             foreach (var e in mEnemys)
             {
-                e.Update(gameTime);
+                e.Update(deltaTime);
             }
             foreach (var s in mStages)
             {
-                s.Update(gameTime);
+                s.Update(deltaTime);
             }
 
             foreach (var addObj in mAddObjects)
@@ -81,8 +81,11 @@ namespace StylishAction.Object
             }
             mAddObjects.Clear();
 
-            Collision_P_E();
-            RemoveDeadObject();
+            if (deltaTime != 0)
+            {
+                Collision_P_E();
+                RemoveDeadObject();
+            }
         }
 
         public void Draw()

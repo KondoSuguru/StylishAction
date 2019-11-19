@@ -40,14 +40,14 @@ namespace StylishAction.Scene
             mCurrentScene.Initialize();
         }
 
-        public void Update(GameTime gameTime)
+        public void Update(float deltaTime)
         {
             if (mCurrentScene == null)
             {
                 return;
             }
 
-            mCurrentScene.Update(gameTime);
+            mCurrentScene.Update(deltaTime);
 
             if (mCurrentScene.IsEnd())
             {

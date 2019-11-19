@@ -13,12 +13,12 @@ namespace StylishAction.Object
     class Player : Character
     {
         private readonly float mDashSpeed;
-        private int mDashTimer;
+        private CountDownTimer mDashTimer;
         private int mDashCount;
         private readonly float mJumpPower;
         private int mJumpCount;
         private bool mIsInvisible;
-        private int mInvisibleTimer;
+        private CountDownTimer mInvisibleTimer;
 
         private enum MoveState
         {
@@ -37,14 +37,14 @@ namespace StylishAction.Object
             None,
         }
         private AttackState mAttackState;
-        private int mWeakAttackTimer;
+        private CountDownTimer mWeakAttackTimer;
 
         public Player(string name, Vector2 size) : base(name, size)
         {
-            mSpeed = 5;
-            mDashSpeed = 25;
-            mJumpPower = 20;
-            mGravity = 1;
+            mSpeed = 300;
+            mDashSpeed = 1500;
+            mJumpPower = 1200;
+            mGravity = 50;
             mMaxHitPoint = 3;
         }
 
@@ -52,21 +52,21 @@ namespace StylishAction.Object
         {
             base.Initialize();
             mPosition = new Vector2(100,100);
-            mDashTimer = 0;
+            mDashTimer = new CountDownTimer(0.2f);
             mDashCount = 2;
             mJumpCount = 0;
             mIsInvisible = false;
-            mInvisibleTimer = 0;
-            mWeakAttackTimer = 5;
+            mInvisibleTimer = new CountDownTimer(1);
+            mWeakAttackTimer = new CountDownTimer(0.1f);
             mMoveState = MoveState.JumpDown;
             mAttackState = AttackState.None;
         }
 
-        public override void Update(GameTime gameTime)
+        public override void Update(float deltaTime)
         {
-            base.Update(gameTime);
+            base.Update(deltaTime);
 
-            InvisibleUpdate();
+            InvisibleUpdate(deltaTime);
 
             if (mMoveState != MoveState.Dash)
             {
@@ -74,13 +74,13 @@ namespace StylishAction.Object
                 InputX();
                 Fall();
                 Jump();
-                WeakAttack();
+                WeakAttack(deltaTime);
             }
-            Dash();
+            Dash(deltaTime);
 
             if (mAttackState == AttackState.None)
             {
-                Translate(mVelocity);
+                Translate(mVelocity * deltaTime);
             }
             MoveStateUpdate();
         }
@@ -142,7 +142,7 @@ namespace StylishAction.Object
             }
         }
 
-        private void Dash()
+        private void Dash(float deltaTime)
         {
             if (mMoveState != MoveState.Dash && Input.GetKeyTrigger(Keys.X) && mDashCount > 0)
             {
@@ -151,19 +151,19 @@ namespace StylishAction.Object
             }
             if (mMoveState == MoveState.Dash)
             {
-                mDashTimer++;
+                mDashTimer.Update(deltaTime);
                 mVelocity.Y = 0;
                 mVelocity.X = ((int)mPreviousDir - 2) * mDashSpeed;
 
-                //ダッシュ状態中、先行入力受付
+                    //ダッシュ状態中、先行入力受付
                 Input.SetBufferKey(Keys.Space);
                 Input.SetBufferKey(Keys.Z);
                 //Input.SetBufferKey(Keys.X);
-
-                if (mDashTimer > 10)
+                
+                if (mDashTimer.IsTime())
                 {
                     mMoveState = MoveState.JumpDown;
-                    mDashTimer = 0;
+                    mDashTimer.Initialize();
 
                     Input.BufferInput();
                 }
@@ -173,10 +173,10 @@ namespace StylishAction.Object
         private void Fall()
         {
             mVelocity.Y += mGravity;
-            mVelocity.Y = ((mVelocity.Y >= 100) ? 100 : mVelocity.Y);
+            //mVelocity.Y = ((mVelocity.Y >= 100) ? 100 : mVelocity.Y);
         }
 
-        private void WeakAttack()
+        private void WeakAttack(float deltaTime)
         {
             if (Input.GetKeyTrigger(Keys.Z) && mAttackState == AttackState.None)
             {
@@ -196,18 +196,18 @@ namespace StylishAction.Object
                         attackOrigin = new Vector2(mOrigin.X - 32, mOrigin.Y);
                         break;
                 }
-                new PlayerWeakAttack("enemy", new Vector2(32, 32), attackOrigin, mWeakAttackTimer);
+                new PlayerWeakAttack("enemy", new Vector2(32, 32), attackOrigin, new CountDownTimer(0.1f));
                 mAttackState = AttackState.WeakAttack;
             }
 
             if(mAttackState == AttackState.WeakAttack)
             {
                 mVelocity = Vector2.Zero;
-                mWeakAttackTimer--;
-                if(mWeakAttackTimer <= 0)
+                mWeakAttackTimer.Update(deltaTime);
+                if(mWeakAttackTimer.IsTime())
                 {
+                    mWeakAttackTimer.Initialize();
                     mAttackState = AttackState.None;
-                    mWeakAttackTimer = 5;
                 }
             }
         }
@@ -244,17 +244,17 @@ namespace StylishAction.Object
             }
         }
 
-        private void InvisibleUpdate()
+        private void InvisibleUpdate(float deltaTime)
         {
             if (mIsInvisible)
             {
                 SetAlpha(0.1f);
-                mInvisibleTimer++;
-                if(mInvisibleTimer >= 60)
+                mInvisibleTimer.Update(deltaTime);
+                if(mInvisibleTimer.IsTime())
                 {
                     SetAlpha(1.0f);
                     mIsInvisible = false;
-                    mInvisibleTimer = 0;
+                    mInvisibleTimer.Initialize();
                 }
             }
         }

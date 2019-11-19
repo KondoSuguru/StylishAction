@@ -5,35 +5,46 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using StylishAction.Device;
+using StylishAction.Utility;
 
 namespace StylishAction.Object
 {
     class PlayerWeakAttack : Object
     {
-        private int mTimer;
-        private Player mPlayer;
+        private CountDownTimer mTimer;
+        private bool mIsHit;
 
-        public PlayerWeakAttack(string name, Vector2 size, Vector2 origin, int timer) : base(name, size)
+        public PlayerWeakAttack(string name, Vector2 size, Vector2 origin, CountDownTimer timer) : base(name, size)
         {
             SetOrigin(origin);
             mTimer = timer;
-            
+            mIsHit = false;
         }
 
         public override void Collision(Object other)
         {
-            
+            if (other is Enemy && !mIsHit)
+            {
+                mIsHit = true;
+                HitStop.mHitStopTime = 0.3f;
+                HitStop.mIsHitStop = true;
+            }
         }
 
-        public override void Update(GameTime gameTime)
+        public override void Update(float deltaTime)
         {
-            base.Update(gameTime);
+            base.Update(deltaTime);
 
-            mTimer--;
-            if (mTimer <= 0)
+            mTimer.Update(deltaTime);
+            if (mTimer.IsTime())
             {
                 mIsDead = true;
             }
+        }
+
+        public float GetLimitTime()
+        {
+            return mTimer.GetLimitTime();
         }
     }
 }

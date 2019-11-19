@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using StylishAction.Device;
 using StylishAction.Scene;
+using StylishAction.Utility;
 
 namespace StylishAction
 {
@@ -33,6 +34,8 @@ namespace StylishAction
             mSceneManager.Add(Scene.Scene.GamePlay, new GamePlay());
             mSceneManager.Change(Scene.Scene.Title);
 
+            HitStop.mIsHitStop = false;
+
             base.Initialize();
         }
 
@@ -54,7 +57,20 @@ namespace StylishAction
                 Exit();
 
             GameDevice.Instance().Update(gameTime);
-            mSceneManager.Update(gameTime);
+
+            float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;//1フレーム進むのにかかった時間(秒)
+
+            if (HitStop.mIsHitStop) 
+            {
+                deltaTime = 0;//ヒットストップ時はdeltaTimeを0にしてtimerや移動などを止める
+                HitStop.mHitStopTime -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+                if(HitStop.mHitStopTime <= 0)
+                {
+                    HitStop.mIsHitStop = false;
+                }
+            }
+
+            mSceneManager.Update(deltaTime);
 
             base.Update(gameTime);
         }
@@ -65,6 +81,11 @@ namespace StylishAction
 
             // 画面クリア時の色を設定
             GraphicsDevice.Clear(Color.CornflowerBlue);
+
+            if (HitStop.mIsHitStop)
+            {
+                GraphicsDevice.Clear(Color.Green); //ヒットストップ時
+            }
 
             mSceneManager.Draw();
 

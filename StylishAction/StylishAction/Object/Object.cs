@@ -34,7 +34,7 @@ namespace StylishAction.Object
             mIsDead = false;
         }
 
-        public virtual void Update(GameTime gameTime)
+        public virtual void Update(float deltaTime)
         {
             mOrigin = new Vector2(mPosition.X + (mSize.X / 2), mPosition.Y + (mSize.Y / 2));
         }
