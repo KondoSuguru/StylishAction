@@ -30,7 +30,7 @@ namespace StylishAction.Scene
 
             new Player("enemy", new Vector2(32, 32));
             new Enemy("enemy", new Vector2(32, 32), 100);
-            new Enemy("enemy", new Vector2(32, 32), -10);
+            new Enemy("enemy", new Vector2(32, 32), 0);
             new Wall("wall", new Vector2(64, 640), new Vector2(0, 0));
             new Wall("wall", new Vector2(64, 640), new Vector2(1280, 0));
             new Wall("ground", new Vector2(640, 64), new Vector2(0, 640));

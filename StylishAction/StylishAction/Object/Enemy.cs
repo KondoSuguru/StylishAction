@@ -36,7 +36,6 @@ namespace StylishAction.Object
             mPosition = new Vector2(500,500);
             mMoveState = MoveState.JumpDown;
             mIsPlayerAttackCollision = false;
-            mTimer = new CountDownTimer();
             mVelocity = new Vector2(1, 0);
         }
 
@@ -126,8 +125,12 @@ namespace StylishAction.Object
                 mColor = new Color(r.Next(0, 255), r.Next(0, 255), r.Next(0, 255));
                 //mHitPoint--;
 
-                mTimer.SetTime(((PlayerWeakAttack)other).GetLimitTime() + 0.1f);
+                //mTimer.SetTime(((PlayerWeakAttack)other).GetLimitTime() + 0.05f);
+                mTimer  = new CountDownTimer(((PlayerWeakAttack)other).GetLimitTime() + 0.05f);
                 mIsPlayerAttackCollision = true;
+
+                HitStop.mHitStopTime = 0.3f;
+                HitStop.mIsHitStop = true;
             }
         }
     }

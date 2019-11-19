@@ -12,23 +12,16 @@ namespace StylishAction.Object
     class PlayerWeakAttack : Object
     {
         private CountDownTimer mTimer;
-        private bool mIsHit;
 
         public PlayerWeakAttack(string name, Vector2 size, Vector2 origin, CountDownTimer timer) : base(name, size)
         {
             SetOrigin(origin);
             mTimer = timer;
-            mIsHit = false;
         }
 
         public override void Collision(Object other)
         {
-            if (other is Enemy && !mIsHit)
-            {
-                mIsHit = true;
-                HitStop.mHitStopTime = 0.3f;
-                HitStop.mIsHitStop = true;
-            }
+
         }
 
         public override void Update(float deltaTime)
