@@ -42,7 +42,7 @@ namespace StylishAction.Object
         public Player(string name, Vector2 size) : base(name, size)
         {
             mSpeed = 5;
-            mDashSpeed = 50;
+            mDashSpeed = 25;
             mJumpPower = 20;
             mGravity = 1;
             mMaxHitPoint = 3;
@@ -160,7 +160,7 @@ namespace StylishAction.Object
                 Input.SetBufferKey(Keys.Z);
                 //Input.SetBufferKey(Keys.X);
 
-                if (mDashTimer > 5)
+                if (mDashTimer > 10)
                 {
                     mMoveState = MoveState.JumpDown;
                     mDashTimer = 0;
@@ -178,7 +178,7 @@ namespace StylishAction.Object
 
         private void WeakAttack()
         {
-            if (Input.GetKeyUp(Keys.Z) && mAttackState == AttackState.None)
+            if (Input.GetKeyTrigger(Keys.Z) && mAttackState == AttackState.None)
             {
                 Vector2 attackOrigin = Vector2.Zero;
                 switch (mCurrentDir)
