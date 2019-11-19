@@ -11,11 +11,22 @@ namespace StylishAction.Object
 {
     class PlayerWeakAttack : Object
     {
+        private Vector2 mVelocity;
+        private float mSpeed;
         private CountDownTimer mTimer;
 
-        public PlayerWeakAttack(string name, Vector2 size, Vector2 origin, CountDownTimer timer) : base(name, size)
+        public PlayerWeakAttack(string name, Vector2 size, Vector2 origin, int dir, CountDownTimer timer) : base(name, size)
         {
-            SetOrigin(origin);
+            if(dir % 2 == 0)
+            {
+                mVelocity = new Vector2(0, dir - 1);
+            }
+            else
+            {
+                mVelocity = new Vector2(dir - 2, 0);
+            }
+            SetOrigin(origin + (mVelocity * size));
+            mSpeed = 100;
             mTimer = timer;
         }
 
@@ -27,6 +38,8 @@ namespace StylishAction.Object
         public override void Update(float deltaTime)
         {
             base.Update(deltaTime);
+
+            Translate(mVelocity * mSpeed * deltaTime);
 
             mTimer.Update(deltaTime);
             if (mTimer.IsTime())

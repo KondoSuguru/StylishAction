@@ -180,23 +180,7 @@ namespace StylishAction.Object
         {
             if (Input.GetKeyTrigger(Keys.Z) && mAttackState == AttackState.None)
             {
-                Vector2 attackOrigin = Vector2.Zero;
-                switch (mCurrentDir)
-                {
-                    case Direction.Up:
-                        attackOrigin = new Vector2(mOrigin.X, mOrigin.Y - 32);
-                        break;
-                    case Direction.Down:
-                        attackOrigin = new Vector2(mOrigin.X, mOrigin.Y + 32);
-                        break;
-                    case Direction.Right:
-                        attackOrigin = new Vector2(mOrigin.X + 32, mOrigin.Y);
-                        break;
-                    case Direction.Left:
-                        attackOrigin = new Vector2(mOrigin.X - 32, mOrigin.Y);
-                        break;
-                }
-                new PlayerWeakAttack("enemy", new Vector2(32, 32), attackOrigin, new CountDownTimer(0.1f));
+                new PlayerWeakAttack("enemy", new Vector2(32, 32), mOrigin, (int)mCurrentDir, new CountDownTimer(0.1f));
                 mAttackState = AttackState.WeakAttack;
             }
 
