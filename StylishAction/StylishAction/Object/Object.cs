@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using StylishAction.Device;
+using StylishAction.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,7 +37,7 @@ namespace StylishAction.Object
 
         public virtual void Update(float deltaTime)
         {
-            if(deltaTime == 0)
+            if(HitStop.mIsHitStop)
             {
                 return;
             }

@@ -42,6 +42,8 @@ namespace StylishAction.Object
 
         public override void Update(float deltaTime)
         {
+            if (HitStop.mIsHitStop)
+                return;
             base.Update(deltaTime);
 
             Fall();
@@ -126,10 +128,8 @@ namespace StylishAction.Object
                 mColor = new Color(r.Next(0, 255), r.Next(0, 255), r.Next(0, 255));
                 //mHitPoint--;
 
-                mTimer  = new CountDownTimer(((PlayerWeakAttack)other).GetLimitTime() + 0.05f);
+                mTimer  = new CountDownTimer(((PlayerWeakAttack)other).GetLimitTime());
                 mIsPlayerAttackCollision = true;
-
-                HitStopEffect.Instance().SetBlast(0.1f, new Vector2(Screen.WIDTH, Screen.HEIGHT));
 
                 HitStop.mHitStopScale = 1.5f;
                 HitStop.mHitStopTime = 0.2f;

@@ -20,13 +20,15 @@ namespace StylishAction.Object
             if(dir % 2 == 0)
             {
                 mVelocity = new Vector2(0, dir - 1);
+                SetOrigin(origin - new Vector2(size.X, 0) + (mVelocity * size));
             }
             else
             {
                 mVelocity = new Vector2(dir - 2, 0);
+                SetOrigin(origin - new Vector2(0, size.Y) + (mVelocity * size));
             }
-            SetOrigin(origin + (mVelocity * size));
-            mSpeed = 100;
+            //SetOrigin(origin + (mVelocity * size));
+            mSpeed = 500;
             mTimer = timer;
         }
 
@@ -39,7 +41,7 @@ namespace StylishAction.Object
         {
             base.Update(deltaTime);
 
-            Translate(mVelocity * mSpeed * deltaTime);
+            Translate(new Vector2( Math.Abs(mVelocity.Y), Math.Abs(mVelocity.X)) * mSpeed * deltaTime);
 
             mTimer.Update(deltaTime);
             if (mTimer.IsTime())
