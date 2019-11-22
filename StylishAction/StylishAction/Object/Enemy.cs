@@ -33,7 +33,7 @@ namespace StylishAction.Object
         public override void Initialize()
         {
             base.Initialize();
-            mPosition = new Vector2(500,500);
+            mPosition = new Vector2(600,600);
             mMoveState = MoveState.JumpDown;
             mIsPlayerAttackCollision = false;
             mVelocity = new Vector2(1, 0);

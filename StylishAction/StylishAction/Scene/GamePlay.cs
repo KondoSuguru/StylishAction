@@ -31,11 +31,17 @@ namespace StylishAction.Scene
             new Player("enemy", new Vector2(32, 32));
             new Enemy("enemy", new Vector2(32, 32), 100);
             new Enemy("enemy", new Vector2(32, 32), 0);
+            new Wall("ground", new Vector2(640, 64), new Vector2(0, - 64));
+            new Wall("ground", new Vector2(640, 64), new Vector2(640, - 64));
+            new Wall("ground", new Vector2(640, 64), new Vector2(1280, - 64));
             new Wall("wall", new Vector2(64, 640), new Vector2(0, 0));
-            new Wall("wall", new Vector2(64, 640), new Vector2(1280, 0));
-            new Wall("ground", new Vector2(640, 64), new Vector2(0, 640));
-            new Wall("ground", new Vector2(640, 64), new Vector2(640, 640));
-            new Wall("ground", new Vector2(640, 64), new Vector2(320, 320));
+            new Wall("wall", new Vector2(64, 640), new Vector2(0, 640));
+            new Wall("wall", new Vector2(64, 640), new Vector2(Screen.WIDTH - 64, 0));
+            new Wall("wall", new Vector2(64, 640), new Vector2(Screen.WIDTH - 64, 640));
+            new Wall("ground", new Vector2(640, 64), new Vector2(0, Screen.HEIGHT - 64));
+            new Wall("ground", new Vector2(640, 64), new Vector2(640, Screen.HEIGHT - 64));
+            new Wall("ground", new Vector2(640, 64), new Vector2(1280, Screen.HEIGHT - 64));
+            new Wall("ground", new Vector2(640, 64), new Vector2(Screen.WIDTH / 2 - 320, Screen.HEIGHT / 2));
         }
 
         public bool IsEnd()
