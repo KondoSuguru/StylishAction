@@ -4,6 +4,8 @@ using Microsoft.Xna.Framework.Input;
 using StylishAction.Device;
 using StylishAction.Scene;
 using StylishAction.Utility;
+using StylishAction.Effect;
+using StylishAction.Object;
 
 namespace StylishAction
 {
@@ -35,6 +37,8 @@ namespace StylishAction
             mSceneManager.Change(Scene.Scene.Title);
 
             HitStop.mIsHitStop = false;
+
+            GameDevice.Instance().GetRenderer().InitializeRenderTarget(Screen.WIDTH, Screen.HEIGHT);
 
             base.Initialize();
         }
@@ -71,23 +75,41 @@ namespace StylishAction
             }
 
             mSceneManager.Update(deltaTime);
+            HitStopEffect.Instance().Update(gameTime);
+
+            if (!HitStop.mIsHitStop)
+            {
+                HitStop.mHitStopScale -= (float)gameTime.ElapsedGameTime.TotalSeconds * 1.5f;
+                if (HitStop.mHitStopScale <= 1)
+                {
+                    HitStop.mHitStopScale = 1;
+                }
+            }
 
             base.Update(gameTime);
         }
 
         protected override void Draw(GameTime gameTime)
         {
-            GameDevice.Instance().GetRenderer().Begin();
-
-            // 画面クリア時の色を設定
+            GameDevice.Instance().GetRenderer().BeginRenderTarget();
+         
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            if (HitStop.mIsHitStop)
-            {
-                GraphicsDevice.Clear(Color.Green); //ヒットストップ時
-            }
-
             mSceneManager.Draw();
+
+            GameDevice.Instance().GetRenderer().EndRenderTarget();
+
+            GameDevice.Instance().GetRenderer().Begin(SpriteSortMode.Deferred, BlendState.Additive);
+
+            if (ObjectManager.Instance().GetPlayer() != null)
+            {
+                Vector2 origin = ObjectManager.Instance().GetPlayer().GetOrigin();
+                GameDevice.Instance().GetRenderer().DrawRenderTargetTexture(origin, null, 0.0f, origin, HitStop.mHitStopScale, Color.White);
+            }
+            else
+            {
+                GameDevice.Instance().GetRenderer().DrawRenderTargetTexture(new Vector2(Screen.WIDTH / 2, Screen.HEIGHT / 2), null, 0.0f, new Vector2(Screen.WIDTH / 2, Screen.HEIGHT / 2), HitStop.mHitStopScale, Color.White);
+            }
 
             GameDevice.Instance().GetRenderer().End();
 

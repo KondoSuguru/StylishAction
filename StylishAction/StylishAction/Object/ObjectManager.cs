@@ -127,6 +127,18 @@ namespace StylishAction.Object
             return mStages;
         }
 
+        public Player GetPlayer()
+        {
+            for(int i = 0; i < mPlayers.Count; i++)
+            {
+                if(mPlayers[i] is Player)
+                {
+                    return (Player)mPlayers[i];
+                }
+            }
+            return null;
+        }
+
         private void Collision_P_E()
         {
             //プレイヤーリストとエネミーリストの当たり判定（円）

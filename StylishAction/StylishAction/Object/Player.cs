@@ -297,6 +297,10 @@ namespace StylishAction.Object
             {
                 if (mMoveState != MoveState.Dash && !mIsInvisible)
                 {
+                    HitStop.mHitStopScale = 1.1f;
+                    HitStop.mHitStopTime = 0.2f;
+                    HitStop.mIsHitStop = true;
+
                     mIsInvisible = true;
                     mHitPoint--;
                 }

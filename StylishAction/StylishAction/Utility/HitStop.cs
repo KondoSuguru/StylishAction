@@ -10,5 +10,6 @@ namespace StylishAction.Utility
     {
         public static bool mIsHitStop; //ヒットストップしているかどうか
         public static float mHitStopTime; //ヒットストップする時間
+        public static float mHitStopScale; //画面倍率
     }
 }

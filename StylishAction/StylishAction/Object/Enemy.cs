@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using StylishAction.Device;
 using StylishAction.Utility;
+using StylishAction.Effect;
 
 namespace StylishAction.Object
 {
@@ -125,11 +126,13 @@ namespace StylishAction.Object
                 mColor = new Color(r.Next(0, 255), r.Next(0, 255), r.Next(0, 255));
                 //mHitPoint--;
 
-                //mTimer.SetTime(((PlayerWeakAttack)other).GetLimitTime() + 0.05f);
                 mTimer  = new CountDownTimer(((PlayerWeakAttack)other).GetLimitTime() + 0.05f);
                 mIsPlayerAttackCollision = true;
 
-                HitStop.mHitStopTime = 0.3f;
+                HitStopEffect.Instance().SetBlast(0.1f, new Vector2(Screen.WIDTH, Screen.HEIGHT));
+
+                HitStop.mHitStopScale = 1.5f;
+                HitStop.mHitStopTime = 0.2f;
                 HitStop.mIsHitStop = true;
             }
         }
