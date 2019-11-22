@@ -75,11 +75,10 @@ namespace StylishAction
             }
 
             mSceneManager.Update(deltaTime);
-            HitStopEffect.Instance().Update(gameTime);
 
             if (!HitStop.mIsHitStop)
             {
-                HitStop.mHitStopScale -= (float)gameTime.ElapsedGameTime.TotalSeconds * 1.5f;
+                HitStop.mHitStopScale -= (float)gameTime.ElapsedGameTime.TotalSeconds * 2f;
                 if (HitStop.mHitStopScale <= 1)
                 {
                     HitStop.mHitStopScale = 1;

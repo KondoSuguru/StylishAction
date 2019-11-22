@@ -36,6 +36,10 @@ namespace StylishAction.Object
 
         public virtual void Update(float deltaTime)
         {
+            if(deltaTime == 0)
+            {
+                return;
+            }
             mOrigin = new Vector2(mPosition.X + (mSize.X / 2), mPosition.Y + (mSize.Y / 2));
         }
 
