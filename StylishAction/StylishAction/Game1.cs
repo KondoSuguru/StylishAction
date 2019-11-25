@@ -17,6 +17,7 @@ namespace StylishAction
         GraphicsDeviceManager mGraphics;
         SpriteBatch mSpriteBatch;
         private SceneManager mSceneManager;
+        private HPUI mHPUI;
 
         public Game1()
         {
@@ -35,6 +36,8 @@ namespace StylishAction
             mSceneManager.Add(Scene.Scene.Title, new Title());
             mSceneManager.Add(Scene.Scene.GamePlay, new GamePlay());
             mSceneManager.Change(Scene.Scene.Title);
+
+            mHPUI = new HPUI();
 
             HitStop.mIsHitStop = false;
 
@@ -98,7 +101,8 @@ namespace StylishAction
 
             GameDevice.Instance().GetRenderer().EndRenderTarget();
 
-            GameDevice.Instance().GetRenderer().Begin(SpriteSortMode.Deferred, BlendState.Additive);
+            //GameDevice.Instance().GetRenderer().Begin(SpriteSortMode.Deferred, BlendState.Additive);
+            GameDevice.Instance().GetRenderer().Begin();
 
             if (ObjectManager.Instance().GetPlayer() != null)
             {
@@ -109,6 +113,8 @@ namespace StylishAction
             {
                 GameDevice.Instance().GetRenderer().DrawRenderTargetTexture(new Vector2(Screen.WIDTH / 2, Screen.HEIGHT / 2), null, 0.0f, new Vector2(Screen.WIDTH / 2, Screen.HEIGHT / 2), HitStop.mHitStopScale, Color.White);
             }
+
+            mHPUI.Draw();
 
             GameDevice.Instance().GetRenderer().End();
 

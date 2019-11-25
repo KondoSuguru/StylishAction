@@ -20,12 +20,12 @@ namespace StylishAction.Object
             if(dir % 2 == 0)
             {
                 mVelocity = new Vector2(0, dir - 1);
-                SetOrigin(origin - new Vector2(size.X, 0) + (mVelocity * size));
+                SetOrigin(origin - new Vector2(size.X, 0) + (mVelocity * (size.X + 10)));
             }
             else
             {
                 mVelocity = new Vector2(dir - 2, 0);
-                SetOrigin(origin - new Vector2(0, size.Y) + (mVelocity * size));
+                SetOrigin(origin - new Vector2(0, size.Y) + (mVelocity * (size.X + 10)));
             }
             //SetOrigin(origin + (mVelocity * size));
             mSpeed = 500;

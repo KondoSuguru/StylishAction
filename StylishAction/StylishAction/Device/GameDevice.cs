@@ -18,6 +18,7 @@ namespace StylishAction.Device
 
         // デバイス関連のフィールド
         private Renderer mRenderer;
+        private Sound mSound;
         private static Random mRandom;
         private ContentManager mContent;
         private GraphicsDevice mGraphics;
@@ -26,6 +27,7 @@ namespace StylishAction.Device
         private GameDevice(ContentManager content, GraphicsDevice graphics)
         {
             mRenderer = new Renderer(content, graphics);
+            mSound = new Sound(content);
             mRandom = new Random();
             this.mContent = content;
             this.mGraphics = graphics;
@@ -62,6 +64,11 @@ namespace StylishAction.Device
         public Renderer GetRenderer()
         {
             return mRenderer;
+        }
+
+        public Sound GetSound()
+        {
+            return mSound;
         }
 
         public Random GetRandom()

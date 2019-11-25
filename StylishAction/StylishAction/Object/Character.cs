@@ -55,5 +55,15 @@ namespace StylishAction.Object
             //死ぬときの処理
             mIsDead = true;
         }
+
+        public int GetMaxHP()
+        {
+            return mMaxHitPoint;
+        }
+
+        public int GetHP()
+        {
+            return mHitPoint;
+        }
     }
 }

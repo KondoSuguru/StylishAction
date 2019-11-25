@@ -44,11 +44,15 @@
     <Compile Include="Device\GameDevice.cs" />
     <Compile Include="Device\Renderer.cs" />
     <Compile Include="Device\Screen.cs" />
+    <Compile Include="Device\Sound.cs" />
     <Compile Include="Effect\Blast.cs" />
     <Compile Include="Effect\HitStopEffect.cs" />
     <Compile Include="Game1.cs" />
+    <Compile Include="Object\BossAttack.cs" />
     <Compile Include="Object\Character.cs" />
+    <Compile Include="Object\DamageEffect.cs" />
     <Compile Include="Object\Enemy.cs" />
+    <Compile Include="Object\HPUI.cs" />
     <Compile Include="Object\Object.cs" />
     <Compile Include="Object\ObjectManager.cs" />
     <Compile Include="Object\Player.cs" />

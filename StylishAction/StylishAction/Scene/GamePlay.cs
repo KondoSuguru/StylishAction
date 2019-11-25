@@ -13,24 +13,48 @@ namespace StylishAction.Scene
 {
     class GamePlay : SceneBase, IScene
     {
+        private Player mPlayer;
+        private Enemy mBoss;
+        private bool mIsClear;
+        private bool mIsGameOver;
+
         public GamePlay()
         {
             var r = GameDevice.Instance().GetRenderer();
-            r.LoadContent("player");
-            r.LoadContent("enemy");
+            r.LoadContent("player_left");
+            r.LoadContent("player_right");
+            r.LoadContent("player_up");
+            r.LoadContent("player_down");
+            r.LoadContent("sikaku");
+            r.LoadContent("boss");
+            r.LoadContent("boss_left");
+            r.LoadContent("boss_right");
             r.LoadContent("wall");
             r.LoadContent("ground");
+            r.LoadContent("bg");
+            r.LoadContent("HP_frame");
+            r.LoadContent("HP_player");
+            r.LoadContent("HP_boss");
+            r.LoadContent("clear");
+            r.LoadContent("gameover");
+            var s = GameDevice.Instance().GetSound();
+            s.LoadBGM("playBGM");
+            s.LoadSE("shotSE");
+            s.LoadSE("damageSE");
+            s.LoadSE("loseSE");
+            s.LoadSE("winSE");
         }
 
         public void Initialize()
         {
             mIsEnd = false;
+            mIsClear = false;
+            mIsGameOver = false;
             mNextScene = Scene.Title;
             ObjectManager.Instance().Initialize();
 
-            new Player("enemy", new Vector2(32, 32));
-            new Enemy("enemy", new Vector2(32, 32), 100);
-            new Enemy("enemy", new Vector2(32, 32), 0);
+            mPlayer = new Player("player_right", new Vector2(32, 32));
+            mBoss = new Enemy("boss_left", new Vector2(64, 64));
             new Wall("ground", new Vector2(640, 64), new Vector2(0, - 64));
             new Wall("ground", new Vector2(640, 64), new Vector2(640, - 64));
             new Wall("ground", new Vector2(640, 64), new Vector2(1280, - 64));
@@ -61,16 +85,46 @@ namespace StylishAction.Scene
 
         public void Update(float deltaTime)
         {
-            ObjectManager.Instance().Update(deltaTime);
-
-            if (Input.GetKeyTrigger(Keys.Enter))
+            var s = GameDevice.Instance().GetSound();
+            if (mIsClear || mIsGameOver)
             {
-                mIsEnd = true;
+                if (Input.GetKeyTrigger(Keys.Enter))
+                {
+                    s.PlaySE("selectSE");
+                    mIsEnd = true;
+                }
+                return;
             }
+
+            
+            s.PlayBGM("playBGM");
+            ObjectManager.Instance().Update(deltaTime);
+            if (mPlayer.IsDead())
+            {
+                s.StopBGM();
+                s.PlaySE("loseSE");
+                mIsGameOver = true;
+            }
+            if (mBoss.IsDead())
+            {
+                s.StopBGM();
+                s.PlaySE("winSE");
+                mIsClear = true;
+            }
+
         }
         public void Draw()
         {
+            GameDevice.Instance().GetRenderer().DrawTexture("bg", Vector2.Zero);
             ObjectManager.Instance().Draw();
+            if (mIsClear)
+            {
+                GameDevice.Instance().GetRenderer().DrawTexture("clear", Vector2.Zero);
+            }
+            if (mIsGameOver)
+            {
+                GameDevice.Instance().GetRenderer().DrawTexture("gameover", Vector2.Zero);
+            }
         }
     }
 }

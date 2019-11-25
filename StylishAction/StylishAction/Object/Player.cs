@@ -19,6 +19,7 @@ namespace StylishAction.Object
         private int mJumpCount;
         private bool mIsInvisible;
         private CountDownTimer mInvisibleTimer;
+        private CountDownTimer mDamageMovetimer;
 
         private enum MoveState
         {
@@ -27,6 +28,7 @@ namespace StylishAction.Object
             Dash,
             JumpUp,
             JumpDown,
+            Damage,
         }
         private MoveState mMoveState;
 
@@ -42,22 +44,25 @@ namespace StylishAction.Object
         public Player(string name, Vector2 size) : base(name, size)
         {
             mSpeed = 300;
-            mDashSpeed = 1500;
+            mDashSpeed = 1300;
             mJumpPower = 1200;
             mGravity = 50;
-            mMaxHitPoint = 3;
+            mMaxHitPoint = 5;
+            Initialize();
         }
 
         public override void Initialize()
         {
             base.Initialize();
-            mPosition = new Vector2(100,100);
+            mPosition = new Vector2(100,Screen.HEIGHT - 100);
+            mOrigin = new Vector2(mPosition.X + (mSize.X / 2), mPosition.Y + (mSize.Y / 2));
             mDashTimer = new CountDownTimer(0.2f);
             mDashCount = 2;
             mJumpCount = 0;
             mIsInvisible = false;
             mInvisibleTimer = new CountDownTimer(1);
             mWeakAttackTimer = new CountDownTimer(0.1f);
+            mDamageMovetimer = new CountDownTimer(0.5f);
             mMoveState = MoveState.JumpDown;
             mAttackState = AttackState.None;
         }
@@ -70,11 +75,15 @@ namespace StylishAction.Object
 
             if (mMoveState != MoveState.Dash)
             {
-                DirectionUpdate();
-                InputX();
-                Fall();
-                Jump();
-                WeakAttack(deltaTime);
+                if(mMoveState != MoveState.Damage)
+                {
+                    DirectionUpdate();
+                    InputX();
+                    Jump();
+                    WeakAttack(deltaTime);
+                }                
+                Fall();               
+                DamageMove(deltaTime);           
             }
             Dash(deltaTime);
 
@@ -122,9 +131,12 @@ namespace StylishAction.Object
         private void Landing()
         {
             mVelocity.Y = 0;
-            mMoveState = MoveState.Stay;
             mJumpCount = 2;
             mDashCount = 2;
+            if (mMoveState == MoveState.Damage)
+                return;
+
+            mMoveState = MoveState.Stay;
         }
 
         private void InputX()
@@ -136,6 +148,7 @@ namespace StylishAction.Object
         {
             if (Input.GetKeyTrigger(Keys.Space) && mJumpCount > 0)
             {
+                GameDevice.Instance().GetSound().PlaySE("shotSE");
                 mMoveState = MoveState.JumpUp;
                 mVelocity.Y = -mJumpPower;
                 mJumpCount--;
@@ -146,7 +159,9 @@ namespace StylishAction.Object
         {
             if (mMoveState != MoveState.Dash && Input.GetKeyTrigger(Keys.X) && mDashCount > 0)
             {
+                GameDevice.Instance().GetSound().PlaySE("shotSE");
                 mMoveState = MoveState.Dash;
+                SetAlpha(0.5f);
                 mDashCount--;
             }
             if (mMoveState == MoveState.Dash)
@@ -164,8 +179,22 @@ namespace StylishAction.Object
                 {
                     mMoveState = MoveState.JumpDown;
                     mDashTimer.Initialize();
+                    SetAlpha(1.0f);
 
                     Input.BufferInput();
+                }
+            }
+        }
+
+        private void DamageMove(float deltaTime)
+        {
+            if(mMoveState == MoveState.Damage)
+            {
+                mDamageMovetimer.Update(deltaTime);
+                if (mDamageMovetimer.IsTime())
+                {
+                    mDamageMovetimer.Initialize();
+                    mMoveState = MoveState.JumpDown;
                 }
             }
         }
@@ -180,7 +209,8 @@ namespace StylishAction.Object
         {
             if (Input.GetKeyTrigger(Keys.Z) && mAttackState == AttackState.None)
             {
-                new PlayerWeakAttack("enemy", new Vector2(32, 32), mOrigin, (int)mCurrentDir, new CountDownTimer(0.1f));
+                GameDevice.Instance().GetSound().PlaySE("shotSE");
+                new PlayerWeakAttack("sikaku", new Vector2(32, 32), mOrigin, (int)mCurrentDir, new CountDownTimer(0.1f));
                 mAttackState = AttackState.WeakAttack;
             }
 
@@ -226,13 +256,28 @@ namespace StylishAction.Object
             {
                 mCurrentDir = mPreviousDir;
             }
+            switch (mCurrentDir)
+            {
+                case Direction.Right:
+                    mName = "player_right";
+                    break;
+                case Direction.Left:
+                    mName = "player_left";
+                    break;
+                case Direction.Up:
+                    mName = "player_up";
+                    break;
+                case Direction.Down:
+                    mName = "player_down";
+                    break;
+            }
         }
 
         private void InvisibleUpdate(float deltaTime)
         {
             if (mIsInvisible)
             {
-                SetAlpha(0.1f);
+                SetAlpha(0.5f);
                 mInvisibleTimer.Update(deltaTime);
                 if(mInvisibleTimer.IsTime())
                 {
@@ -245,7 +290,7 @@ namespace StylishAction.Object
 
         private void MoveStateUpdate()
         {
-            if(mMoveState == MoveState.Dash)
+            if(mMoveState == MoveState.Dash || mMoveState == MoveState.Damage)
             {
                 return;
             }
@@ -267,27 +312,17 @@ namespace StylishAction.Object
             }
         }
 
+        private void CreateDamageEffect()
+        {
+            Random rand = GameDevice.Instance().GetRandom();
+            for (int i = 0; i < 10; i++)
+            {
+                new DamageEffect("sikaku", new Vector2(64, 64), mOrigin, new Vector2(rand.Next(-1, 2), rand.Next(-1, 2)));
+            }
+        }
+
         public override void Draw()
         {
-            //stateで色を変える（テスト）
-            switch (mMoveState)
-            {
-                case MoveState.Stay:
-                    SetColor(new Color(255,255,255));
-                    break;
-                case MoveState.Walk:
-                    SetColor(new Color(255, 0, 0));
-                    break;
-                case MoveState.JumpUp:
-                    SetColor(new Color(0, 255, 0));
-                    break;
-                case MoveState.JumpDown:
-                    SetColor(new Color(0, 0, 255));
-                    break;
-                case MoveState.Dash:
-                    SetColor(new Color(255, 0, 255));
-                    break;
-            }
             base.Draw();
         }
 
@@ -297,12 +332,39 @@ namespace StylishAction.Object
             {
                 if (mMoveState != MoveState.Dash && !mIsInvisible)
                 {
+                    GameDevice.Instance().GetSound().PlaySE("damageSE");
+                    CreateDamageEffect();
                     HitStop.mHitStopScale = 1.05f;
                     HitStop.mHitStopTime = 0.1f;
                     HitStop.mIsHitStop = true;
 
                     mIsInvisible = true;
                     mHitPoint--;
+
+                    mVelocity.X = Vector2.Normalize(mOrigin - other.GetOrigin()).X * mSpeed;
+                    mVelocity.Y = -mJumpPower * 0.8f;
+
+                    mMoveState = MoveState.Damage;
+                }
+            }
+
+            if(other is BossAttack)
+            {
+                if (mMoveState != MoveState.Dash && !mIsInvisible)
+                {
+                    GameDevice.Instance().GetSound().PlaySE("damageSE");
+                    CreateDamageEffect();
+                    HitStop.mHitStopScale = 1.2f;
+                    HitStop.mHitStopTime = 0.2f;
+                    HitStop.mIsHitStop = true;
+
+                    mIsInvisible = true;
+                    mHitPoint--;
+
+                    mVelocity.X = Vector2.Normalize(mOrigin - other.GetOrigin()).X * mSpeed;
+                    mVelocity.Y = -mJumpPower * 0.8f;
+
+                    mMoveState = MoveState.Damage;
                 }
             }
         }

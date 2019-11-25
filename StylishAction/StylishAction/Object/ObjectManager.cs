@@ -14,6 +14,7 @@ namespace StylishAction.Object
         private List<Object> mPlayers;
         private List<Object> mEnemys;
         private List<Object> mStages;
+        private List<Object> mEffects;
         private List<Object> mAddObjects;
 
         private ObjectManager()
@@ -21,6 +22,7 @@ namespace StylishAction.Object
             mPlayers = new List<Object>();
             mEnemys = new List<Object>();
             mStages = new List<Object>();
+            mEffects = new List<Object>();
             mAddObjects = new List<Object>();
         }
 
@@ -38,6 +40,7 @@ namespace StylishAction.Object
             mPlayers.Clear();
             mEnemys.Clear();
             mStages.Clear();
+            mEffects.Clear();
             mAddObjects.Clear();
         }
 
@@ -62,6 +65,10 @@ namespace StylishAction.Object
             {
                 s.Update(deltaTime);
             }
+            foreach(var e in mEffects)
+            {
+                e.Update(deltaTime);
+            }
 
             foreach (var addObj in mAddObjects)
             {
@@ -70,13 +77,17 @@ namespace StylishAction.Object
                 {
                     mPlayers.Add(addObj);
                 }
-                if(addObj is Enemy)
+                if(addObj is Enemy || addObj is BossAttack)
                 {
                     mEnemys.Add(addObj);
                 }
                 if(addObj is Wall)
                 {
                     mStages.Add(addObj);
+                }
+                if(addObj is DamageEffect)
+                {
+                    mEffects.Add(addObj);
                 }
             }
             mAddObjects.Clear();
@@ -102,6 +113,10 @@ namespace StylishAction.Object
             {
                 p.Draw();
             }
+            foreach(var e in mEffects)
+            {
+                e.Draw();
+            }
         }
 
         public void Clear()
@@ -109,6 +124,7 @@ namespace StylishAction.Object
             mPlayers.Clear();
             mEnemys.Clear();
             mStages.Clear();
+            mEffects.Clear();
             mAddObjects.Clear();
         }
 
@@ -139,6 +155,18 @@ namespace StylishAction.Object
             return null;
         }
 
+        public Enemy GetBoss()
+        {
+            for (int i = 0; i < mEnemys.Count; i++)
+            {
+                if (mEnemys[i] is Enemy)
+                {
+                    return (Enemy)mEnemys[i];
+                }
+            }
+            return null;
+        }
+
         private void Collision_P_E()
         {
             //プレイヤーリストとエネミーリストの当たり判定（円）
@@ -148,7 +176,7 @@ namespace StylishAction.Object
                 for (int j = 0; j < mEnemys.Count; j++)
                 {
                     Object e = mEnemys[j];
-                    if(Vector2.Distance(p.GetPosition(),e.GetPosition()) <= (p.GetSize().X + e.GetSize().X) / 2)
+                    if(Vector2.Distance(p.GetOrigin(),e.GetOrigin()) <= (p.GetSize().X + e.GetSize().X) / 2)
                     {
                         p.Collision(e);
                         e.Collision(p);
